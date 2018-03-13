@@ -1,6 +1,6 @@
 let count = 0
 const defalutOpt = {
-    prefix: 'jsp_',
+    prefix: '_jp',
     name: 'callback'
 }
 const enc = encodeURIComponent
@@ -11,7 +11,7 @@ let jsonpBilder = function(opt){
     let script // 生成的script标签
     let option = Object.assign({}, defalutOpt, opt)
     let id = option.prefix + count++ // 方法的唯一标识
-    option.timeout = option.timeout === null? 60000 : option.timeout
+    option.timeout = option.timeout == null? 60000 : option.timeout
     let url = option.url
     let node = document.getElementsByTagName('script')[0] || document.body
     if(url.includes('?')) {
@@ -19,18 +19,20 @@ let jsonpBilder = function(opt){
     }else {
         url += '?'
     }
-    url = url + paramJoin(option.param) + `&${option.name}=${id}`
+    url = url + paramJoin(option.param) + `&${option.name}=${enc(id)}`
     window[id] = function(data){
         cleanup()
         option.callback(null, data)
     }
-    timer = setTimeout(function(){}, option.timeout)
+    timer = setTimeout(function(){
+        cleanup()
+        option.callback(new Error('time out'))
+    }, option.timeout)
     let cleanup = function() {
         if(script.parentNode) script.parentNode.removeChild(script)
         window[id] = noop
         if(timer) {
             clearTimeout(timer)
-            option.callback(new Error('time out'))
         }
     }
     script = document.createElement('script')
@@ -42,10 +44,10 @@ let paramJoin = function(param){
     if (!param) return ''
     let url = ''
     for (let key in param) {
-        url += `&${key}=${param[key]===undefined? '' : param[key]}`
+        url += `&${enc(key)}=${param[key]===undefined? '' : enc(param[key])}`
     }
     url = url.substring(1)
-    return enc(url)
+    return url
 }
 
 export default function jsonp(opt){
