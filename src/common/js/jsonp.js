@@ -5,7 +5,7 @@ const defalutOpt = {
 }
 const enc = encodeURIComponent
 function noop(){}
-let jsonp = function(opt){
+let jsonpBilder = function(opt){
     if (!opt || !opt.url) return
     let timer // 计时器，超时处理
     let script // 生成的script标签
@@ -22,15 +22,15 @@ let jsonp = function(opt){
     url = url + paramJoin(option.param) + `&${option.name}=${id}`
     window[id] = function(data){
         cleanup()
-        option.success(data)
+        option.callback(null, data)
     }
     timer = setTimeout(function(){}, option.timeout)
     let cleanup = function() {
         if(script.parentNode) script.parentNode.removeChild(script)
-        window[id] = noop;
+        window[id] = noop
         if(timer) {
             clearTimeout(timer)
-            opt.failuer(new Error('time out'))
+            option.callback(new Error('time out'))
         }
     }
     script = document.createElement('script')
@@ -42,10 +42,21 @@ let paramJoin = function(param){
     if (!param) return ''
     let url = ''
     for (let key in param) {
-        url += `&${key}=${param[key]}`
+        url += `&${key}=${param[key]===undefined? '' : param[key]}`
     }
     url = url.substring(1)
     return enc(url)
 }
 
-export default jsonp
+export default function jsonp(opt){
+    return new Promise((resolve, reject) => {
+        opt.callback = function(err, data) {
+            if(err){
+                reject(err)
+            }else {
+                resolve(data)
+            }
+        }
+        jsonpBilder(opt)
+    })
+}
