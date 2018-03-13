@@ -30,6 +30,9 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'eol-last': 0,
-    'space-before-function-paren': 0
+    "space-before-blocks": [0, "always"],//不以新行开始的块{前面要不要有空格
+    "space-before-function-paren": [0, "always"],//函数定义时括号前面要不要有空格
+    "space-infix-ops": 0,
+    "keyword-spacing": 0
   }
-}
+};
