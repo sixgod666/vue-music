@@ -3,8 +3,19 @@
 </template>
 
 <script>
+    import getRecommond from 'api/recommond'
     export default {
-        name: 'recommond'
+        name: 'recommond',
+        created(){
+            getRecommond()
+        },
+        methods: {
+            getRecommond(){
+                getRecommond().then((res) => {
+                    console.info(res)
+                })
+            }
+        }
     }
 </script>
 
