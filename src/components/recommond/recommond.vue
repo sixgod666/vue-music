@@ -1,12 +1,6 @@
 <template>
   <div>
-      <slider>
-          <div v-for="item in recommend" :key="item.id">
-              <a :href="item.linkUrl">
-                  <img :src="item.picUrl">
-              </a>
-          </div>
-      </slider>
+      <slider :items="recommend"></slider>
   </div>
 </template>
 
