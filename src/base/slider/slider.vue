@@ -1,7 +1,7 @@
 <template>
     <div class="slider">
-        <div class="slider-group" :style="{width:100*length+'%'}">
-            <a v-for="(item, i) in list" :key="item.id" :href="item.linkUrl" :style="{width:100/length+'%',left: -width*i+'px',transform: 'translateX('+(i==index? '0': -width)+'px)'}">
+        <div class="slider-group" :style=groupStyle>
+            <a v-for="(item, i) in list" :key="item.id+i" :href="item.linkUrl" :style="{width:width+'px'}">
                 <img :src="item.picUrl" alt="">
             </a>
         </div>
@@ -16,24 +16,34 @@
             return {
                 width: document.body.clientWidth,
                 left: document.body.clientWidth,
-                index: 0
+                index: 1
             }
         },
         watch: {
-            items: function() {
-                if(this.autoScroll) clearInterval(this.autoScroll)
-                this.autoScroll = setInterval(() => {
-                    this.index = this.index===this.length-1? 0 : ++this.index
-                }, 1000)
+            index: function() {
+                if(this.index === -1) {
+                    this.index = this.list.length - 2
+                }else if(this.index === this.list.length) {
+                    this.index = 1
+                }
             }
         },
-        mounted(){},
+        mounted(){
+            if(this.autoScroll) clearInterval(this.autoScroll)
+            this.autoScroll = setInterval(() => {
+                this.index++
+            }, 1000)
+        },
         computed: {
-            length: function() {
-                return this.items.length
-            },
             list: function() {
-                return this.items.slice(0, this.items.length)
+                return [this.items[this.items.length-1]].concat(this.items).concat([this.items[0]])
+            },
+            groupStyle: function() {
+                return {
+                    width: (this.items.length+2)*this.width + 'px',
+                    transition: (this.index===0 || this.index === this.items.length + 2)? 'all 0 ease-out' : 'all .3s ease-out',
+                    left: -this.index*this.width + 'px'
+                }
             }
         },
         props: {
@@ -68,9 +78,9 @@
             top 0
             left 0
             bottom 0
+            transition all .4s ease-out
             a {
                 display inline-block
-                transition all .4s ease-out
                 img {
                     width 100%
                 }

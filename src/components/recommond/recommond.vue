@@ -1,6 +1,6 @@
 <template>
   <div>
-      <slider :items="recommend"></slider>
+      <slider v-if="recommend.length" :items="recommend"></slider>
   </div>
 </template>
 
